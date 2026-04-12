@@ -1,4 +1,5 @@
 import { createSudokuFromJSON } from './sudoku.js'
+import { BOX_SIZE, SUDOKU_SIZE } from '../node_modules/@sudoku/constants.js'
 
 class Game {
   constructor(sudoku, history = { past: [], future: [] }) {
