@@ -1,5 +1,4 @@
 import { createSudokuFromJSON } from './sudoku.js'
-<<<<<<< HEAD
 
 function isSudokuLike(value) {
   return Boolean(
@@ -17,8 +16,6 @@ function normalizeHistory(history = {}) {
     future: Array.isArray(history.future) ? structuredClone(history.future) : [],
   }
 }
-=======
->>>>>>> b818f42ca6a343188964f83a8bf3364d40db4c88
 
 class Game {
   constructor(sudoku, history = { past: [], future: [] }) {
