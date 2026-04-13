@@ -1,11 +1,32 @@
 import { createSudokuFromJSON } from './sudoku.js'
-import { BOX_SIZE, SUDOKU_SIZE } from '../node_modules/@sudoku/constants.js'
+
+function isSudokuLike(value) {
+  return Boolean(
+    value &&
+      typeof value.getGrid === 'function' &&
+      typeof value.guess === 'function' &&
+      typeof value.clone === 'function' &&
+      typeof value.toJSON === 'function',
+  )
+}
+
+function normalizeHistory(history = {}) {
+  return {
+    past: Array.isArray(history.past) ? structuredClone(history.past) : [],
+    future: Array.isArray(history.future) ? structuredClone(history.future) : [],
+  }
+}
 
 class Game {
   constructor(sudoku, history = { past: [], future: [] }) {
-    this.current = sudoku
-    this.past = structuredClone(history.past ?? [])
-    this.future = structuredClone(history.future ?? [])
+    if (!isSudokuLike(sudoku)) {
+      throw new TypeError('sudoku must be a Sudoku-like object')
+    }
+
+    this.current = sudoku.clone()
+    const normalized = normalizeHistory(history)
+    this.past = normalized.past
+    this.future = normalized.future
   }
 
   snapshotOf(sudoku) {
@@ -13,7 +34,7 @@ class Game {
   }
 
   getSudoku() {
-    return this.current
+    return this.current.clone()
   }
 
   guess(move) {
@@ -53,17 +74,21 @@ class Game {
   }
 
   static fromJSON(json) {
+    if (!json || typeof json !== 'object') {
+      throw new TypeError('json must be an object')
+    }
+    if (!json.sudoku) {
+      throw new TypeError('json.sudoku is required')
+    }
+
     return new Game(
       createSudokuFromJSON(json.sudoku),
-      {
-        past: json.past ?? [],
-        future: json.future ?? [],
-      },
+      normalizeHistory({ past: json.past, future: json.future }),
     )
   }
 }
 
-export function createGame({ sudoku, history = { past: [], future: [] } }) {
+export function createGame({ sudoku, history = { past: [], future: [] } } = {}) {
   return new Game(sudoku, history)
 }
 
